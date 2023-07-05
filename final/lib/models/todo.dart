@@ -6,9 +6,13 @@ class Todo {
   late String todoDate;
   int? isFinished;
 
-  todoMap() {
+
+
+  Map<String, dynamic> todoMap() {
     var mapping = Map<String, dynamic>();
-    mapping['id'] = id;
+    if (id != null) {
+      mapping['id'] = id;
+    }
     mapping['title'] = title;
     mapping['description'] = description;
     mapping['category'] = category;

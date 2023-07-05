@@ -15,8 +15,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   TodoService? _todoService;
   List<Todo> _todoList = <Todo>[];
+
   @override
-  initState() {
+  void initState() {
     super.initState();
     getAllTodos();
   }
@@ -42,6 +43,13 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  deleteTodo(int id) async {
+    await _todoService?.deleteTodo(id);
+    setState(() {
+      _todoList.removeWhere((todo) => todo.id == id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,13 +65,44 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Card(
               elevation: 8,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0)),
+                borderRadius: BorderRadius.circular(0),
+              ),
               child: ListTile(
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  // ignore: dead_null_aware_expression
                   children: <Widget>[
-                    Text(_todoList[index].title ?? 'No Title')
+                    Text(_todoList[index].title ?? 'No Title'),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Delete Todo'),
+                              content: Text(
+                                'Are you sure you want to delete this todo?',
+                              ),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('Cancel'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                TextButton(
+                                  child: Text('Delete'),
+                                  onPressed: () {
+                                    deleteTodo(_todoList[index].id!);
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ],
                 ),
                 subtitle: Text(_todoList[index].category ?? 'No Category'),
@@ -74,9 +113,11 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => TodoScreen())),
-          child: Icon(Icons.add)),
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => TodoScreen()),
+        ),
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
